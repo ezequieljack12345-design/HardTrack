@@ -2,28 +2,36 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+
 package com.edad.hardtrack.dao;
 
 import com.edad.hardtrack.entity.DeviceType;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
+public class DeviceTypeDAOImpl implements DeviceTypeDAO {
 
-public class DeviceTypeDAOImpl implements DeviceTypeDAO{
-    
     private EntityManager entityManager;
-        
-        @Autowired
-        public DeviceTypeDAOImpl(EntityManager entityManager){
-            this.entityManager = entityManager;
-        }
-        
-        @Override
-        public DeviceType findById(int id){
-            return entityManager.find(DeviceType.class, id);
-        }
-        
-        
+
+    @Autowired
+    public DeviceTypeDAOImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
+    @Override
+    public DeviceType findById(int id) {
+        return entityManager.find(DeviceType.class, id);
+    }
+
+    @Override
+    public List<DeviceType> findAll() {
+        TypedQuery<DeviceType> query = entityManager.createQuery("from DeviceType", DeviceType.class);
+        return query.getResultList();
+    }
+
 }
+
