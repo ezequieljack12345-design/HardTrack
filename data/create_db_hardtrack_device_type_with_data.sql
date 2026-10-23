@@ -85,7 +85,39 @@ CREATE TABLE device (
 
 
 -- =====================================================
--- 7. COMPROVAR LES DADES INICIALS
+-- 7. TAULA USERS AMB DADES
+-- =====================================================
+
+INSERT INTO users (username, password, enable) VALUES
+    ('admin', 'admin', 1),
+    ('usuari', 'usuari', 1);
+
+
+-- =====================================================
+-- 8. TAULA AUTHORITIES AMB DADES
+-- =====================================================
+
+INSERT INTO authorities (id_user, authority) VALUES
+    (1, 'ROLE_ADMIN'),
+    (2, 'ROLE_USER');
+
+
+-- =====================================================
+-- 9. TAULA DEVICE AMB DADES
+-- =====================================================
+
+INSERT INTO device (id_type, device_description, state) VALUES
+    (1, 'Ratolí Logitech M185', 1),
+    (2, 'Monitor LG 24" FullHD', 1),
+    (3, 'Teclat mecànic Redragon', 1),
+    (4, 'Impressora HP LaserJet Pro', 1);
+
+
+-- =====================================================
+-- 10. COMPROVAR LES DADES INICIALS
 -- =====================================================
 
 SELECT * FROM device_type;
+SELECT * FROM device;
+SELECT * FROM users;
+SELECT * FROM authorities;
