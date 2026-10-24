@@ -2,6 +2,11 @@
 const API_BASE = '/api';
 const AUTH_STORAGE_KEY = 'hardtrack.adminAuth';
 const ADMIN_CHECK_DEVICE_ID = -999999;
+const isDevicesPage = window.location.pathname.endsWith('/devices.html');
+
+if (isDevicesPage) {
+    document.documentElement.style.visibility = 'hidden';
+}
 
 // Authentication
 function getAdminAuth() {
@@ -27,6 +32,32 @@ function clearAdminAuth() {
     sessionStorage.removeItem(AUTH_STORAGE_KEY);
 }
 
+async function authorizeDevicesPage() {
+    if (!isDevicesPage) return true;
+
+    const auth = getAdminAuth();
+    if (!auth) {
+        window.location.replace('/');
+        return false;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/devices/${ADMIN_CHECK_DEVICE_ID}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': buildAuthHeader(auth.username, auth.password) }
+        });
+        if (response.status === 404) return true;
+
+        clearAdminAuth();
+        window.location.replace('/');
+        return false;
+    } catch (error) {
+        console.error('No se pudo verificar el acceso de administrador:', error);
+        window.location.replace('/');
+        return false;
+    }
+}
+
 function adminFetch(url, options = {}) {
     const headers = new Headers(options.headers || {});
     const auth = getAdminAuth();
@@ -41,10 +72,19 @@ function updateAdminAuthUi() {
     const loginItem = document.getElementById('adminLoginItem');
     const logoutItem = document.getElementById('adminLogoutItem');
     const userLabel = document.getElementById('adminLoggedUser');
+    const devicesNavItem = document.getElementById('devicesNavItem');
+    const devicesAction = document.getElementById('devicesAction');
+    const ordersAction = document.getElementById('ordersAction');
 
     if (loginItem) loginItem.style.display = auth ? 'none' : '';
     if (logoutItem) logoutItem.style.display = auth ? '' : 'none';
     if (userLabel) userLabel.textContent = auth ? auth.username : '';
+    if (devicesNavItem) devicesNavItem.style.display = auth ? '' : 'none';
+    if (devicesAction) devicesAction.style.display = auth ? '' : 'none';
+    if (ordersAction) {
+        ordersAction.classList.toggle('col-md-6', Boolean(auth));
+        ordersAction.classList.toggle('col-md-12', !auth);
+    }
 }
 
 function showAuthError(message) {
@@ -144,8 +184,7 @@ async function adminLogin(event) {
 function adminLogout(event) {
     if (event) event.preventDefault();
     clearAdminAuth();
-    updateAdminAuthUi();
-    showAlert('Sesión de administrador cerrada', 'info');
+    window.location.replace('/');
 }
 
 function handleAdminResponse(response) {
@@ -239,11 +278,14 @@ async function loadDevices() {
                     <button class="btn btn-sm btn-outline-primary me-1" onclick="editDevice(${device.id})" title="Editar">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteDevice(${device.id}, '${escapeHtml(device.deviceDescription).replace(/'/g, "\\'")}')" title="Eliminar">
+                    <button class="btn btn-sm btn-outline-danger delete-device-btn" title="Eliminar">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </td>
             `;
+            row.querySelector('.delete-device-btn').addEventListener('click', () => {
+                deleteDevice(device.id, device.deviceDescription || '-');
+            });
             tableBody.appendChild(row);
         });
     } catch (error) {
@@ -535,7 +577,13 @@ function escapeHtml(text) {
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    if (!await authorizeDevicesPage()) return;
+
+    if (isDevicesPage) {
+        document.documentElement.style.visibility = '';
+    }
+
     updateAdminAuthUi();
 
     const authForm = document.getElementById('authForm');

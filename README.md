@@ -99,6 +99,8 @@ La aplicación estará disponible en `http://localhost:8097`
 Para información completa sobre arquitectura, seguridad, flujo de datos, uso de servicios/DTOs y relaciones entre clases, consulta:
 
 - [`data/DOCUMENTACION_HARDTRACK.md`](/HardTrack/data/DOCUMENTACION_HARDTRACK.md)
+- [Modelo entidad-relación](/HardTrack/data/MODELO_ER.md)
+- [Modelo lógico de la base de datos](/HardTrack/data/MODELO_LOGICO.md)
 
 ## Licencia
 
