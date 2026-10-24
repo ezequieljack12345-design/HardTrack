@@ -8,6 +8,7 @@ API REST para la gestión de dispositivos con Spring Boot 4, Spring Security (au
 - **Gestión de tipos de dispositivo**: Consulta de categorías
 - **Sistema de pedidos**: Creación de órdenes con validación de disponibilidad
 - **Seguridad**: Autenticación HTTP Basic con roles ADMIN/USER
+- **Acceso de administración**: La gestión de dispositivos está disponible desde la web para administradores; las operaciones de escritura se validan también en el servidor
 - **Manejo de errores**: Respuestas unificadas con `@ControllerAdvice`
 - **Arquitectura en capas**: Controller → Service → DAO → Entity
 

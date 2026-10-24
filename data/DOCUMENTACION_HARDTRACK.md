@@ -577,6 +577,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/index.html", "/devices.html", "/orders.html",
+                                        "/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/devices", "/api/devices/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/device-types", "/api/device-types/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/devices/order").permitAll()
@@ -615,6 +617,11 @@ public class SecurityConfig {
 #### Mecanismos
 - **HTTP Basic Auth** habilitado (`httpBasic(Customizer.withDefaults())`)
 - **CSRF deshabilitado** (`csrf(csrf -> csrf.disable())`) - común en APIs REST stateless
+- Las páginas HTML estáticas y sus recursos se permiten en Spring Security para que la interfaz pueda gestionar la sesión desde el modal; por tanto, `/devices.html` no se bloquea directamente en el servidor.
+- El formulario de acceso de administrador valida primero las credenciales y el rol contra la API. Si son correctos, la interfaz guarda las credenciales en `sessionStorage` de esa pestaña.
+- En la página de gestión, `app.js` vuelve a comprobar el rol ADMIN antes de mostrar el contenido. Si no hay sesión válida, redirige a Inicio. Esta comprobación controla el acceso visual; la autorización efectiva de las operaciones de escritura sigue estando en los endpoints protegidos del servidor.
+- Los enlaces de menú y la tarjeta de gestión en Inicio solo se muestran cuando hay una sesión de administrador guardada. Al cerrar sesión se borra esa sesión y se redirige a Inicio.
+- Los botones de eliminación se enlazan como eventos al renderizar cada fila; la descripción se pasa como dato y no se inserta en el `onclick`, para que apóstrofos u otros caracteres no rompan el botón.
 
 ### Cómo probar autenticación
 ```bash
