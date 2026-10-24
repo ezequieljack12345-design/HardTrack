@@ -321,6 +321,56 @@ async function loadDeviceTypes() {
     }
 }
 
+function openNewDeviceTypeModal() {
+    if (!requireAdmin()) return;
+
+    const form = document.getElementById('deviceTypeForm');
+    form.reset();
+    form.classList.remove('was-validated');
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('deviceTypeModal')).show();
+}
+
+async function saveDeviceType() {
+    if (!requireAdmin()) return;
+
+    const form = document.getElementById('deviceTypeForm');
+    if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        form.reportValidity();
+        return;
+    }
+
+    const name = document.getElementById('deviceTypeName').value.trim();
+    const saveBtn = document.getElementById('saveDeviceTypeBtn');
+    const originalText = saveBtn.innerHTML;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+
+    try {
+        const response = await adminFetch(`${API_BASE}/device-types`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+        });
+        handleAdminResponse(response);
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Error al crear tipo de dispositivo');
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('deviceTypeModal')).hide();
+        showAlert('Tipo de dispositivo creado correctamente', 'success');
+        await loadDeviceTypes();
+    } catch (error) {
+        showAlert(`Error al crear tipo de dispositivo: ${error.message}`, 'danger');
+        console.error('Error:', error);
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalText;
+    }
+}
+
 async function saveDevice() {
     if (!requireAdmin()) return;
 

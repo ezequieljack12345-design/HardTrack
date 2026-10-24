@@ -541,6 +541,9 @@ public class DeviceTypeRestController {
 | POST | `/api/devices/order` | **permitAll** | Crear pedido/orden | `OrderRequest` JSON | `ReceiptDTO` |
 | GET | `/api/device-types` | **permitAll** | Listar tipos | - | `List<DeviceType>` |
 | GET | `/api/device-types/{id}` | **permitAll** | Obtener tipo por ID | - | `DeviceType` o 404 |
+| POST | `/api/device-types` | **hasRole("ADMIN")** | Crear tipo de dispositivo | `{"name":"Portátil"}` | `DeviceType` creado o 400 |
+
+En **Gestión de Dispositivos**, el botón **Nuevo Tipo** abre un formulario para crear una categoría. El nombre se recorta en los extremos, debe contener texto y no puede superar los 45 caracteres que admite `device_type.name`. Tras crear el tipo, se actualizan las opciones de tipo disponibles en los formularios de dispositivos.
 
 **Cómo funciona el envío de datos:**
 - `@RequestBody` deserializa JSON a objeto Java (usando Jackson)
@@ -581,6 +584,7 @@ public class SecurityConfig {
                                         "/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/devices", "/api/devices/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/device-types", "/api/device-types/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/device-types").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/devices/order").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/devices").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/devices").hasRole("ADMIN")
@@ -612,6 +616,7 @@ public class SecurityConfig {
 - **GETs públicos**: consulta de dispositivos y tipos no requiere autenticación
 - **POST /api/devices/order** público: permite hacer pedidos sin login
 - **POST/PUT/DELETE de dispositivos solo ADMIN**: operaciones modificativas protegidas
+- **POST /api/device-types solo ADMIN**: crear categorías de dispositivos requiere rol de administrador
 - `.anyRequest().authenticated()` requiere autenticación para lo demás
 
 #### Mecanismos

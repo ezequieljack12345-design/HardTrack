@@ -42,6 +42,7 @@ public class SecurityConfig {
                                         "/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/devices", "/api/devices/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/device-types", "/api/device-types/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/device-types").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/devices/order").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/devices").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/devices").hasRole("ADMIN")

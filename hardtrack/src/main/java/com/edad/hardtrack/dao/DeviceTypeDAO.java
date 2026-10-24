@@ -11,4 +11,5 @@ import java.util.List;
 public interface DeviceTypeDAO {
     DeviceType findById(int id);
     List<DeviceType> findAll();
+    void save(DeviceType deviceType);
 }

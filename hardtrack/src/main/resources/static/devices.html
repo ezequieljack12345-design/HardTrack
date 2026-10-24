@@ -76,9 +76,14 @@
                         <h6 class="mb-1 text-primary-custom"><i class="fas fa-list me-2"></i>Listado de Dispositivos</h6>
                         <small class="text-muted">Gestionar catálogo de dispositivos</small>
                     </div>
-                    <button class="btn btn-primary" onclick="openNewDeviceModal()">
-                        <i class="fas fa-plus me-2"></i>Nuevo Dispositivo
-                    </button>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-secondary" onclick="openNewDeviceTypeModal()">
+                            <i class="fas fa-tags me-2"></i>Nuevo Tipo
+                        </button>
+                        <button class="btn btn-primary" onclick="openNewDeviceModal()">
+                            <i class="fas fa-plus me-2"></i>Nuevo Dispositivo
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -121,6 +126,37 @@
                     <i class="fas fa-inbox"></i>
                     <div class="empty-state-title">No hay dispositivos registrados</div>
                     <div class="empty-state-text">Comience agregando un nuevo dispositivo</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Type Modal -->
+    <div class="modal fade" id="deviceTypeModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-tags me-2"></i>Nuevo Tipo de Dispositivo
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="deviceTypeForm">
+                        <div class="mb-3">
+                            <label for="deviceTypeName" class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="deviceTypeName" maxlength="45" required>
+                            <div class="invalid-feedback">Introduce un nombre de hasta 45 caracteres.</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="saveDeviceTypeBtn" onclick="saveDeviceType()">
+                        <i class="fas fa-save me-2"></i>Guardar Tipo
+                    </button>
                 </div>
             </div>
         </div>

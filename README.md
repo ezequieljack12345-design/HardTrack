@@ -50,6 +50,9 @@ src/main/java/com/edad/hardtrack/
 | `POST` | `/api/devices/order` | Público | Crear pedido (valida disponibilidad, marca como no disponible) |
 | `GET` | `/api/device-types` | Público | Listar tipos de dispositivo |
 | `GET` | `/api/device-types/{id}` | Público | Obtener tipo por ID |
+| `POST` | `/api/device-types` | **ADMIN** | Crear un tipo de dispositivo |
+
+En la página **Gestión de Dispositivos**, los administradores pueden crear tipos desde **Nuevo Tipo**. El nombre es obligatorio y admite hasta 45 caracteres.
 
 ## Configuración
 

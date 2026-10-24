@@ -11,6 +11,7 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class DeviceTypeDAOImpl implements DeviceTypeDAO {
@@ -33,5 +34,10 @@ public class DeviceTypeDAOImpl implements DeviceTypeDAO {
         return query.getResultList();
     }
 
-}
+    @Override
+    @Transactional
+    public void save(DeviceType deviceType) {
+        entityManager.persist(deviceType);
+    }
 
+}
