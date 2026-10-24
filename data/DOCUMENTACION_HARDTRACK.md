@@ -667,12 +667,14 @@ spring.datasource.url=${DB_URL}
 spring.datasource.username=${DB_USERNAME}
 spring.datasource.password=${DB_PASSWORD}
 server.port=${SERVER_PORT:8097}
+spring.config.import=optional:file:.env[.properties]
 ```
 
 **Explicación:**
 - Las credenciales se leen desde variables de entorno (ver sección 13)
-- Copiar `.env.example` a `.env` dentro de `hardtrack/` y configurar valores
-- **Spring Boot no carga automáticamente el archivo `.env`**: hay que exportar las variables en la shell o definirlas en la configuración de ejecución del IDE
+- `spring.config.import=optional:file:.env[.properties]` hace que Spring Boot importe el `.env` del directorio de ejecución como archivo de propiedades; `optional:` permite arrancar sin ese archivo si las variables ya están definidas en el entorno
+- Copiar `.env.example` a `.env` dentro de `hardtrack/` y configurar valores antes de ejecutar Maven desde esa carpeta
+- Las variables definidas directamente en el entorno prevalecen sobre las del archivo `.env`
 - `server.port` por defecto 8097 si no se especifica
 - `spring.jpa.open-in-view=true` (por defecto) genera warning, pero está habilitado
 - Hibernate genera/actualiza esquema automáticamente según entidades (configuración por defecto)
@@ -690,6 +692,8 @@ SPRING_APPLICATION_NAME=hardtrack
 > Si MySQL está en el host y la aplicación se ejecuta dentro de un contenedor, cambia `localhost` por `host.docker.internal` en `DB_URL`.
 
 **IMPORTANTE:** Nunca commitear `.env` con credenciales reales. Usar `.env.example` como plantilla.
+
+**Incidencia de arranque resuelta:** antes, `application.properties` solo referenciaba `${DB_URL}`, `${DB_USERNAME}` y `${DB_PASSWORD}` y Spring Boot no encontraba esos valores al arrancar con un archivo `.env` sin cargar. Esto provocaba un error de configuración del datasource (por ejemplo, `'url' must start with "jdbc"`). La importación opcional de `.env` permite cargarlo automáticamente al ejecutar desde `hardtrack/`; si no está el archivo y tampoco se han definido las variables en el entorno, siguen siendo necesarias para conectar con la base de datos.
 
 ### pom.xml
 Dependencias principales:
@@ -761,9 +765,9 @@ Porque hay **múltiples validaciones, lógica condicional, modificación de esta
 
 ### Variables de entorno obligatorias
 
-`application.properties` usa `${DB_URL}`, `${DB_USERNAME}`, `${DB_PASSWORD}`, etc. **Spring Boot no carga automáticamente el archivo `.env`**, así que esas variables deben existir en el entorno antes de arrancar.
+`application.properties` usa `${DB_URL}`, `${DB_USERNAME}`, `${DB_PASSWORD}`, etc. y contiene `spring.config.import=optional:file:.env[.properties]`, que importa el archivo `.env` del directorio de ejecución. Para que se encuentre `hardtrack/.env`, ejecuta Maven desde `hardtrack/`.
 
-Si se ejecuta `./mvnw spring-boot:run` sin exportarlas, el arranque falla con un error similar a:
+La incidencia anterior ocurría porque Spring Boot no carga archivos `.env` por defecto: si los valores no estaban exportados en la shell, el arranque fallaba con un error similar a:
 
 ```text
 Failed to instantiate [com.zaxxer.hikari.HikariDataSource]:
@@ -772,7 +776,18 @@ Failed to instantiate [com.zaxxer.hikari.HikariDataSource]:
 
 ### Desde línea de comandos
 
-Opción recomendada: pasar las variables en la misma línea de comandos. El siguiente ejemplo usa **datos dummy**; sustitúyelos por los de tu entorno:
+La forma habitual es copiar la plantilla, editar los valores y arrancar Maven desde `hardtrack/`:
+
+```bash
+cd /home/HardTrack/hardtrack
+cp .env.example .env
+# Edita .env con las credenciales de tu entorno antes de arrancar.
+./mvnw spring-boot:run
+```
+
+No es necesario exportar el contenido del archivo `.env` manualmente. El siguiente método sigue disponible si prefieres definir las variables en la propia shell; el ejemplo usa **datos dummy**, que debes sustituir por los de tu entorno:
+
+Pasar variables en la misma línea de comandos:
 
 ```bash
 # Desde /home/HardTrack/hardtrack

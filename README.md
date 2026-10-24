@@ -62,37 +62,29 @@ spring.datasource.url=${DB_URL}
 spring.datasource.username=${DB_USERNAME}
 spring.datasource.password=${DB_PASSWORD}
 server.port=${SERVER_PORT:8097}
+spring.config.import=optional:file:.env[.properties]
 ```
 
 > **Nota**: La autenticación usa tablas `users` y `authorities` con `JdbcUserDetailsManager`. Las contraseñas usan `NoOpPasswordEncoder` (solo para desarrollo).
 
 ## Ejecución
 
-`application.properties` lee las credenciales de variables de entorno y **Spring Boot no carga automáticamente el archivo `.env`**. Hay que exportarlas antes de arrancar; si no, el arranque falla con `'url' must start with "jdbc"`.
+`application.properties` importa opcionalmente el archivo `.env` del directorio desde el que se ejecuta Maven. Al iniciar desde `hardtrack/`, basta con tener allí el archivo `.env` configurado. Las variables definidas directamente en el entorno también se pueden usar y prevalecen sobre las del archivo.
 
-Ejemplo con **datos dummy** (sustitúyelos por los de tu entorno):
+Para preparar el archivo la primera vez:
 
 ```bash
 cd hardtrack
-
-DB_URL='jdbc:mysql://localhost:3306/hard_track_db' \
-DB_USERNAME='usuario_demo' \
-DB_PASSWORD='password_demo' \
-SERVER_PORT=8097 \
-SPRING_APPLICATION_NAME=hardtrack \
-./mvnw spring-boot:run
+cp .env.example .env
 ```
 
-También puedes cargar tu `.env` en la shell:
+Edita `hardtrack/.env` con los valores de tu entorno y arranca desde `hardtrack/`:
 
 ```bash
-set -a
-. ./.env
-set +a
 ./mvnw spring-boot:run
 ```
 
-> **Cuidado con caracteres especiales**: con `source`, un `$` sin escapar se expande como variable de shell y puede corromper la contraseña. Entrecomilla los valores o escapa el `$`. También puedes definir las variables en la configuración de ejecución de tu IDE.
+El `.env` es opcional si ya has definido las variables en el entorno o en la configuración de ejecución de tu IDE. Si no se encuentran `DB_URL`, `DB_USERNAME` y `DB_PASSWORD` ni en `.env` ni en el entorno, la conexión a la base de datos no podrá configurarse y el arranque fallará.
 
 La aplicación estará disponible en `http://localhost:8097`
 
@@ -135,4 +127,4 @@ SPRING_APPLICATION_NAME=hardtrack
 
 > **Importante**: El archivo `.env` contiene información sensible y está incluido en `.gitignore`. Nunca lo subas a GitHub. Usa `.env.example` como plantilla.
 
-**Carga de variables**: `.env` no se carga automáticamente. Exporta las variables antes de arrancar (ver [Ejecución](#ejecución)), defínelas en tu IDE, o cárgalo con `set -a; . ./.env; set +a`. Evita `export $(cat .env | xargs)` si hay espacios o caracteres especiales.
+**Carga de variables**: al ejecutar Maven desde `hardtrack/`, Spring Boot importa automáticamente `hardtrack/.env` mediante `spring.config.import=optional:file:.env[.properties]`. También puedes definir las variables directamente en el entorno o en la configuración de ejecución de tu IDE. Si ejecutas la aplicación desde otro directorio, el archivo `.env` se buscará en ese directorio.
