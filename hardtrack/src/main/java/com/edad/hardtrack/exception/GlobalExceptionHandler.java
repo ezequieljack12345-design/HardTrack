@@ -5,6 +5,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+/**
+ * MANEJADOR GLOBAL DE EXCEPCIONES
+ * 
+ * @ControllerAdvice intercepta excepciones lanzadas por controladores/servicios
+ * y devuelve respuestas HTTP uniformes con estructura ErrorResponse.
+ * 
+ * MAPEADO:
+ * - DeviceNotFoundException/DeviceTypeNotFoundException -> 404 NOT_FOUND
+ * - DeviceNotAvailableException -> 409 CONFLICT (dispositivo ya no disponible)
+ * - InvalidOrderException -> 400 BAD_REQUEST (datos inválidos)
+ * - Exception genérica -> 500 INTERNAL_SERVER_ERROR
+ * 
+ * Ver: README_HARDTRACK_DETALLADO.md sección 10
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -39,4 +53,3 @@ public class GlobalExceptionHandler {
     }
 
 }
-

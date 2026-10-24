@@ -13,6 +13,9 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * CONFIGURACIÓN DE SEGURIDAD - Spring Security con autenticación JDBC
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -35,6 +38,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/index.html", "/devices.html", "/orders.html",
+                                        "/css/**", "/js/**", "/img/**", "/favicon.ico").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/devices", "/api/devices/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/device-types", "/api/device-types/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/devices/order").permitAll()

@@ -670,11 +670,24 @@ server.port=${SERVER_PORT:8097}
 ```
 
 **Explicación:**
-- Las credenciales se leen desde variables de entorno (ver Apéndice A)
-- Copiar `.env.example` a `.env` y configurar valores
+- Las credenciales se leen desde variables de entorno (ver sección 13)
+- Copiar `.env.example` a `.env` dentro de `hardtrack/` y configurar valores
+- **Spring Boot no carga automáticamente el archivo `.env`**: hay que exportar las variables en la shell o definirlas en la configuración de ejecución del IDE
 - `server.port` por defecto 8097 si no se especifica
 - `spring.jpa.open-in-view=true` (por defecto) genera warning, pero está habilitado
 - Hibernate genera/actualiza esquema automáticamente según entidades (configuración por defecto)
+
+Ejemplo de `.env` con **datos dummy** (no usar credenciales reales en la documentación):
+
+```env
+DB_URL=jdbc:mysql://localhost:3306/hard_track_db
+DB_USERNAME=usuario_demo
+DB_PASSWORD=password_demo
+SERVER_PORT=8097
+SPRING_APPLICATION_NAME=hardtrack
+```
+
+> Si MySQL está en el host y la aplicación se ejecuta dentro de un contenedor, cambia `localhost` por `host.docker.internal` en `DB_URL`.
 
 **IMPORTANTE:** Nunca commitear `.env` con credenciales reales. Usar `.env.example` como plantilla.
 
@@ -746,17 +759,55 @@ Porque hay **múltiples validaciones, lógica condicional, modificación de esta
 - MySQL con base de datos configurada
 - Las tablas `users`, `authorities`, `device`, `device_type` deben existir
 
+### Variables de entorno obligatorias
+
+`application.properties` usa `${DB_URL}`, `${DB_USERNAME}`, `${DB_PASSWORD}`, etc. **Spring Boot no carga automáticamente el archivo `.env`**, así que esas variables deben existir en el entorno antes de arrancar.
+
+Si se ejecuta `./mvnw spring-boot:run` sin exportarlas, el arranque falla con un error similar a:
+
+```text
+Failed to instantiate [com.zaxxer.hikari.HikariDataSource]:
+'url' must start with "jdbc"
+```
+
 ### Desde línea de comandos
+
+Opción recomendada: pasar las variables en la misma línea de comandos. El siguiente ejemplo usa **datos dummy**; sustitúyelos por los de tu entorno:
+
 ```bash
 # Desde /home/HardTrack/hardtrack
 cd /home/HardTrack/hardtrack
 
-# Con Maven wrapper
+DB_URL='jdbc:mysql://localhost:3306/hard_track_db' \
+DB_USERNAME='usuario_demo' \
+DB_PASSWORD='password_demo' \
+SERVER_PORT=8097 \
+SPRING_APPLICATION_NAME=hardtrack \
 ./mvnw spring-boot:run
-
-# O con Maven instalado
-mvn spring-boot:run
 ```
+
+También se pueden exportar antes:
+
+```bash
+export DB_URL='jdbc:mysql://localhost:3306/hard_track_db'
+export DB_USERNAME='usuario_demo'
+export DB_PASSWORD='password_demo'
+export SERVER_PORT=8097
+./mvnw spring-boot:run
+```
+
+O cargar un archivo `.env` en la shell:
+
+```bash
+set -a
+. ./.env
+set +a
+./mvnw spring-boot:run
+```
+
+> **Cuidado con caracteres especiales**: al hacer `source` de `.env`, un `$` sin escapar se interpreta como una variable de shell y puede corromper la contraseña. Entrecomilla los valores con comillas simples o escapa el `$` (`pass\$demo`). Si el valor contiene espacios, usa comillas.
+
+También puedes definir estas variables en la configuración de ejecución de tu IDE (IntelliJ, VS Code, etc.).
 
 La aplicación arrancará en **http://localhost:8097**
 

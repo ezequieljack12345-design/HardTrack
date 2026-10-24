@@ -8,6 +8,7 @@ import com.edad.hardtrack.exception.DeviceNotFoundException;
 import com.edad.hardtrack.service.DeviceService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * CONTROLADOR REST - Endpoints para gestión de dispositivos
+ * 
+ * Reglas:
+ * - GET: público
+ * - POST /order: solo USER (anónimo se trata como sin rol ADMIN). ADMIN bloqueado por seguridad
+ * - POST/PUT/DELETE: solo ADMIN
+ */
 @RestController
 @RequestMapping("/api/devices")
 public class DeviceRestController {
@@ -68,7 +77,12 @@ public class DeviceRestController {
     }
 
     @PostMapping("/order")
-    public ReceiptDTO createOrder(@RequestBody OrderRequest orderRequest) {
+    public ReceiptDTO createOrder(@RequestBody OrderRequest orderRequest, Authentication authentication) {
+        // Bloquear ADMIN explícitamente
+        if (authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            throw new org.springframework.security.access.AccessDeniedException("Administrators cannot create orders");
+        }
         return deviceService.createOrder(orderRequest);
     }
 

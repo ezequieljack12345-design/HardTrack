@@ -68,16 +68,31 @@ server.port=${SERVER_PORT:8097}
 
 ## Ejecución
 
+`application.properties` lee las credenciales de variables de entorno y **Spring Boot no carga automáticamente el archivo `.env`**. Hay que exportarlas antes de arrancar; si no, el arranque falla con `'url' must start with "jdbc"`.
+
+Ejemplo con **datos dummy** (sustitúyelos por los de tu entorno):
+
 ```bash
-# Clonar y acceder al proyecto
 cd hardtrack
 
-# Ejecutar con Maven Wrapper
+DB_URL='jdbc:mysql://localhost:3306/hard_track_db' \
+DB_USERNAME='usuario_demo' \
+DB_PASSWORD='password_demo' \
+SERVER_PORT=8097 \
+SPRING_APPLICATION_NAME=hardtrack \
 ./mvnw spring-boot:run
-
-# O con Maven
-mvn spring-boot:run
 ```
+
+También puedes cargar tu `.env` en la shell:
+
+```bash
+set -a
+. ./.env
+set +a
+./mvnw spring-boot:run
+```
+
+> **Cuidado con caracteres especiales**: con `source`, un `$` sin escapar se expande como variable de shell y puede corromper la contraseña. Entrecomilla los valores o escapa el `$`. También puedes definir las variables en la configuración de ejecución de tu IDE.
 
 La aplicación estará disponible en `http://localhost:8097`
 
@@ -91,7 +106,6 @@ La aplicación estará disponible en `http://localhost:8097`
 
 Para información completa sobre arquitectura, seguridad, flujo de datos, uso de servicios/DTOs y relaciones entre clases, consulta:
 
-- [`README_HARDTRACK_DETALLADO.md`](README_HARDTRACK_DETALLADO.md)
 - [`data/DOCUMENTACION_HARDTRACK.md`](/HardTrack/data/DOCUMENTACION_HARDTRACK.md)
 
 ## Licencia
@@ -100,22 +114,25 @@ Proyecto educativo.
 
 ## Variables de Entorno
 
-Copia `.env.example` a `.env` y configura tus credenciales:
+Copia la plantilla al archivo `.env` dentro de `hardtrack/` (la carpeta desde la que se ejecuta Maven):
 
 ```bash
+cd hardtrack
 cp .env.example .env
 ```
 
-Edita `.env` con los valores de tu entorno:
+Edita `hardtrack/.env` con los valores de tu entorno. Ejemplo con **datos dummy**:
 
 ```env
-DB_URL=jdbc:mysql://localhost:3306/tu_base_de_datos
-DB_USERNAME=tu_usuario
-DB_PASSWORD=tu_contraseña
+DB_URL=jdbc:mysql://localhost:3306/hard_track_db
+DB_USERNAME=usuario_demo
+DB_PASSWORD=password_demo
 SERVER_PORT=8097
 SPRING_APPLICATION_NAME=hardtrack
 ```
 
+> Si MySQL está en el host y la aplicación se ejecuta en un contenedor, usa `host.docker.internal` en lugar de `localhost`.
+
 > **Importante**: El archivo `.env` contiene información sensible y está incluido en `.gitignore`. Nunca lo subas a GitHub. Usa `.env.example` como plantilla.
 
-**Carga de variables**: Puedes cargar las variables con `export $(cat .env | xargs)` antes de ejecutar la aplicación, o usar herramientas como `dotenv`/IDE con soporte para `.env`.
+**Carga de variables**: `.env` no se carga automáticamente. Exporta las variables antes de arrancar (ver [Ejecución](#ejecución)), defínelas en tu IDE, o cárgalo con `set -a; . ./.env; set +a`. Evita `export $(cat .env | xargs)` si hay espacios o caracteres especiales.
