@@ -69,7 +69,7 @@ server.port=${SERVER_PORT:8097}
 spring.config.import=optional:file:.env[.properties]
 ```
 
-> **Nota**: La autenticación usa tablas `users` y `authorities` con `JdbcUserDetailsManager`. Las contraseñas usan `NoOpPasswordEncoder` (solo para desarrollo).
+> **Nota**: La autenticación usa las tablas `users` y `authorities` con `JdbcUserDetailsManager`. Las contraseñas se almacenan con BCrypt. En la base de datos inicial, las credenciales de ejemplo son `admin` / `admin` y `usuari` / `usuari`; el primer arranque convierte los valores existentes a hashes sin cambiar las claves.
 
 ## Ejecución
 

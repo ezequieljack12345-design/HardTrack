@@ -20,7 +20,7 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(45),
-    password VARCHAR(45),
+    password VARCHAR(60),
     enable TINYINT(1)
 ) ENGINE=InnoDB;
 

@@ -564,7 +564,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -607,8 +607,11 @@ public class SecurityConfig {
 - Las consultas personalizadas hacen JOIN entre `users` y `authorities`
 
 #### Codificación de contraseñas
-- `NoOpPasswordEncoder.getInstance()` **NO codifica contraseñas** (solo para desarrollo/aprendizaje)
-- En producción **NUNCA** usar esto; usar `BCryptPasswordEncoder`
+- Se utiliza `BCryptPasswordEncoder`; las contraseñas se guardan con hash BCrypt y no se pueden recuperar desde la base de datos.
+- El script de instalación incluye contraseñas de ejemplo en texto plano solo para inicializar las cuentas; el runner las convierte a hashes durante el arranque, antes de atender peticiones.
+- Al iniciar, un `ApplicationRunner` comprueba que `users.password` admita 60 caracteres y amplía la columna si una base de datos antigua solo permite 45. Después convierte a BCrypt las contraseñas que aún están en texto plano; los hashes BCrypt existentes no se vuelven a modificar.
+- La actualización conserva las claves actuales. Con los datos iniciales del script son `admin` / `admin` y `usuari` / `usuari`.
+- La cuenta de base de datos de la aplicación necesita permiso `ALTER` durante el primer arranque si la columna aún mide menos de 60 caracteres y permiso `UPDATE` para la migración de contraseñas en texto plano. En reinicios posteriores no se vuelven a actualizar los hashes ya codificados.
 
 #### Autorización por roles
 - `hasRole("ADMIN")` verifica que el usuario tenga rol ADMIN
